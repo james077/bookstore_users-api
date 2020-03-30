@@ -1,8 +1,17 @@
 package users
 
-import(
+import (
 	"fmt"
+	"strings"
+
+	"github.com/james077/bookstore_users-api/datasources/mysql/users_db"
+	"github.com/james077/bookstore_users-api/utils/date_utils"
 	"github.com/james077/bookstore_users-api/utils/errors"
+)
+
+const(
+	indexUniqueEmail = "email_UNIQUE"
+	queryInsertUser ="INSERT INTO users(first_name, last_name, email, date_created) VALUES (?, ?, ?, ?);"
 )
 
 var (
@@ -10,6 +19,10 @@ var (
 )
 
 func (user *User) Get() *errors.RestErr{
+	if err := users_db.Client.Ping(); err != nil{
+		panic(err)
+	}
+	
 	result := usersDB[user.Id]
 	if result == nil{
 		return errors.NewNotFoundError(fmt.Sprintf("Usuario %d no encontrado",user.Id))
@@ -22,15 +35,29 @@ func (user *User) Get() *errors.RestErr{
 	return nil
 }
 
+//Save a..
 func (user *User) Save() *errors.RestErr{
-	current := usersDB[user.Id]
-	if current != nil{
-		if current.Email != user.Email{
-			return errors.NewBadRequestError(fmt.Sprintf("Email %s ya ha sido registrado",user.Email))	
-		}
-		return errors.NewBadRequestError(fmt.Sprintf("Usuario %d ya existe",user.Id))
-
+	stmt, err := users_db.Client.Prepare(queryInsertUser)
+	if err != nil{
+		return errors.NewInternalServerError(err.Error())
 	}
-	usersDB[user.Id] = user
+	defer stmt.Close()
+
+	user.DateCreated = date_utils.GetNowString()
+
+	insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
+	if err != nil{
+		if strings.Contains(err.Error(),indexUniqueEmail){
+			return errors.NewBadRequestError(fmt.Sprintf("email %s ya existe",user.Email))
+		}
+		return errors.NewInternalServerError(fmt.Sprintf("Error tratando de guardar el usuario: %s", err.Error()))
+	}
+	
+	userId, err := insertResult.LastInsertId()
+	if err != nil{
+		return errors.NewInternalServerError(fmt.Sprintf("Error tratando de recuperar ultimo id insertado",err.Error()))
+	}
+
+	userId =userId
 	return nil
 }
