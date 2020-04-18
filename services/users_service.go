@@ -21,28 +21,6 @@ type usersServiceInterface interface {
 	SearchUser(string) (users.Users, rest_errors.RestErr)
 	LoginUser(users.LoginRequest) (*users.User, rest_errors.RestErr)
 }
-/*
-func (s *usersService) GetUser(userId int64) (*users.User, rest_errors.RestErr) {
-	dao := &users.User{Id: userId}
-	if err := dao.Get(); err != nil {
-		return nil, err
-	}
-	return dao, nil
-}
-
-func (s *usersService) CreateUser(user users.User) (*users.User, rest_errors.RestErr) {
-	if err := user.Validate(); err != nil {
-		return nil, err
-	}
-
-	user.Status = users.StatusActive
-	user.DateCreated = date_utils.GetNowDBFormat()
-	user.Password = crypto_utils.GetMd5(user.Password)
-	if err := user.Save(); err != nil {
-		return nil, err
-	}
-	return &user, nil
-}*/
 
 func (s *usersService) GetUser(userId int64) (*users.User, rest_errors.RestErr) {
 	dao := &users.User{Id: userId}

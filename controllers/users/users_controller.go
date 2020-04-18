@@ -1,9 +1,6 @@
 package users
 
 import (
-	//"encoding/json"
-	//"fmt"
-	//"io/ioutil"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -18,7 +15,7 @@ import (
 func getUserId(userIdParam string) (int64, rest_errors.RestErr) {
 	userId, userErr := strconv.ParseInt(userIdParam, 10, 64)
 	if userErr != nil {
-		return 0, rest_errors.NewBadRequestError("user id should be a number")
+		return 0, rest_errors.NewBadRequestError("Id de usuario debe ser un número")
 	}
 	return userId, nil
 }
@@ -62,7 +59,6 @@ func Get(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, user.Marshall(oauth.IsPublic(c.Request)))
-	//c.JSON(http.StatusOK, user.Marshall(c.GetHeader("X-Public") == "true"))
 }
 
 

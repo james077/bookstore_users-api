@@ -18,14 +18,7 @@ type User struct {
 	Status      string `json:"status"`
 	Password    string `json:"password"`
 } 
-/*
-func (user *User) Validate() *errors.RestErr{
-	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
-	if user.Email == "" {
-		return errors.NewBadRequestError("Direccion de correo electrónico inválida")
-	}
-	return nil
-}*/
+
 
 type Users []User
 
